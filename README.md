@@ -1,82 +1,58 @@
 # repostatus
 
-At-a-glance git status for all your repositories. Scans a directory tree, finds every git repo, and shows a color-coded status table.
+Multi-repo git status viewer. Scans a directory for git repos and shows a color-coded summary table.
 
 ## Install
 
-Requires Go 1.21+.
-
 ```bash
-cd ~/Documents/projects/repostatus
-go build .
+go install github.com/jorgevillamizar/repostatus@latest
 ```
 
-Optionally, symlink to your PATH:
+Or build from source:
 
 ```bash
-ln -s ~/Documents/projects/repostatus/repostatus ~/.local/bin/repostatus
+git clone https://github.com/jorgevillamizar/repostatus
+cd repostatus
+go build -o repostatus .
 ```
 
 ## Usage
 
 ```bash
-# Scan default directory (~/Documents/projects)
-./repostatus
-
-# Scan a specific directory
-./repostatus --dir /path/to/projects
+repostatus                    # scan ~/Documents/projects
+repostatus --dir ~/code       # scan a different directory
+repostatus --dir /tmp         # any path
 ```
 
 ## Output
 
-```
-PROJECT               STATUS           BRANCH
-───────────────────── ──────────────── ──────────────────────────
-hermes-agent-team     clean            master
-deep-research         dirty*           feature/structured-reports
-portfolio-agent       clean ahead ↑2   main
-rubik                 no-remote        master
-```
+Color-coded table showing project name, status, and branch:
 
-Columns: **PROJECT** | **STATUS** | **BRANCH**
+```
+PROJECT            STATUS         BRANCH
+──────────         ──────         ──────
+snake              clean          master
+rubik              dirty*         feature/ui
+portfolio          behind ↓2      main
+hermes-agent       no-remote      master
+```
 
 ## Statuses
 
-| Status | Meaning |
-|--------|---------|
-| `clean` | No uncommitted changes, synced with remote |
-| `clean ahead ↑N` | N unpushed commits ahead of remote |
-| `clean behind ↓N` | N unpulled commits behind remote |
-| `dirty` | Uncommitted changes (modified or staged files) |
-| `dirty*` | Uncommitted changes + untracked files |
-| `no-remote` | No remote configured (origin not found) |
-| `detached` | Detached HEAD (on a specific commit, no branch) |
-| `detached*` | Detached HEAD with uncommitted changes |
-| `empty` | Repository has no commits |
-| `error` | `.git` directory exists but `git status` failed |
+| Status | Color | Meaning |
+|--------|-------|---------|
+| clean | green | Nothing to commit, synced with remote |
+| dirty | yellow | Uncommitted changes |
+| dirty* | yellow | Uncommitted changes + untracked files |
+| ahead ↑N | cyan | N commits ahead of remote |
+| behind ↓N | yellow | N commits behind remote |
+| diverged ↑N↓M | magenta | Both ahead and behind |
+| no-remote | red | No remote configured |
+| detached | red | Detached HEAD |
+| detached* | red | Detached HEAD + uncommitted changes |
+| empty | red | No commits yet |
+| error | red | Broken .git directory |
 
-Ahead/behind/dirty can combine: `dirty ahead ↑1`, `clean behind ↓2`.
+## License
 
-## Color Scheme
-
-- **Green**: clean, synced
-- **Yellow**: dirty (local changes), behind remote
-- **Cyan**: ahead of remote
-- **Magenta**: diverged (both ahead and behind)
-- **Red**: no-remote, detached, empty, error
-
-## Exit Codes
-
-- `0` — successful scan (even if no repos found)
-- `1` — error (bad directory path, permission denied)
-
-## Edge Cases Handled
-
-- Empty repos (no commits)
-- No remote configured
-- Detached HEAD (commit hash shown, branch is the short SHA)
-- Detached HEAD with dirty files (marked `detached*`)
-- Bare repos (skipped, shown as `bare`)
-- Spaces in directory names
-- Nested git repos (each shown independently)
-- Very long project names (auto-adjusted column widths)
+MIT
